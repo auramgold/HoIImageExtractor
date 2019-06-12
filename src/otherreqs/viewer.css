@@ -1,0 +1,36 @@
+body {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
+
+.supercontainer {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: space-between;
+	max-width: 1300px;
+}
+
+.container {
+	display: flex;
+	box-sizing: border-box;
+	border: 2px solid black;
+	border-radius: 10px;
+	margin-bottom: 5px;
+	width: 19%;
+}
+
+.imagewrap {
+	border-right: 1px solid black;
+	width: 110px;
+	display: flex;
+	justify-content: center;
+}
+
+.namewrap {
+	display: flex;
+	flex-direction: column;
+	justify-content: space-evenly;
+	padding: 5px;
+	align-items: center;
+}
