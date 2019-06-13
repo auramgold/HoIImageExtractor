@@ -25,6 +25,12 @@ body {
 	width: 110px;
 	display: flex;
 	justify-content: center;
+	align-items: center;
+}
+
+img {
+	flex-grow: 0;
+	flex-shrink: 0;
 }
 
 .namewrap {

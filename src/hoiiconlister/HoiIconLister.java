@@ -25,9 +25,12 @@ import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.imageio.ImageIO;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 /**
@@ -53,12 +56,46 @@ public class HoiIconLister
 		
 		String gamePath = config.getString("hoiDirectory");
 		
+		Set<String> ignores = new HashSet<>();
+		JSONArray configIgnores = config.getJSONArray("ignore");
+		for(Object currIgnore : configIgnores)
+		{
+			ignores.add((String) currIgnore);
+			System.out.println((String)currIgnore);
+		}
+		
 		
 		String gfxRelPath = args[0];
 		String folderSectionName = "";
 		for(int i = 1; i < args.length; ++i)
 		{
-			folderSectionName += args[i];
+			String curr = args[i];
+			if (curr.startsWith("-"))
+			{
+				String proc = curr.substring(1);
+				String[] parts = proc.split(":");
+				if (parts.length > 2) continue;
+				
+				if(parts[0].equals("ignore"))
+				{
+					ignores.add(parts[1]);
+				}
+			}
+			else
+			{
+				folderSectionName += "_" + args[i];
+			}
+		}
+		
+		if(folderSectionName.isEmpty())
+		{
+			folderSectionName = "default";
+			System.out.println("No defined name for output, using 'default'");
+			System.out.println();
+		}
+		else
+		{
+			folderSectionName = folderSectionName.substring(1);
 		}
 		
 		Pattern extractNameLoc = Pattern.compile("(?s)[sS]priteType.*?\\=.*?\\{.*?name.*?\\=.*?\"(\\w+?)\".+?texturefile.*?=.*?\"(.+?)\".*?\\}");
@@ -86,6 +123,8 @@ public class HoiIconLister
 			String name = textExtractor.group(1);
 			String path = textExtractor.group(2);
 			
+			if(ignores.contains(name)) continue;
+			
 			
 			File ddsImgFile = new File(gamePath + path);
 			String relOutPath = "images/" + folderSectionName + "/" + name + ".png";
@@ -97,13 +136,13 @@ public class HoiIconLister
 			{
 				BufferedImage currentImg = importDDS(ddsImgFile);
 				ImageIO.write(currentImg, "png", outImgFile);
+				outBody += generateIconSection(name, relOutPath);
 			}
 			catch(FileNotFoundException ex)
 			{
 				System.out.println("	Image not found, ignoring.");
 			}
 			
-			outBody += generateIconSection(name, relOutPath);
 		}
 		
 		outBody += "</div>";
@@ -127,7 +166,14 @@ public class HoiIconLister
 			int width = DDSReader.getWidth(buffer);
 			int height = DDSReader.getHeight(buffer);
 			BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
-			image.setRGB(0, 0, width, height, pixels, 0, width);
+			try
+			{
+				image.setRGB(0, 0, width, height, pixels, 0, width);
+			}
+			catch (NullPointerException ex)
+			{
+				throw new FileNotFoundException("Corrupted DDS");
+			}
 			return image;
 		}
 	}

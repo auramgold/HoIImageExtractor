@@ -1,3 +1,4 @@
 {
-	"hoiDirectory": "C:/Program Files (x86)/Steam/steamapps/common/Hearts of Iron IV/"
+	"hoiDirectory": "C:/Program Files (x86)/Steam/steamapps/common/Hearts of Iron IV/";
+	"ignore": [ "GFX_decision_category_usa_congress_senate_ui", "GFX_decision_category_usa_congress_house_ui", "GFX​_idea​_traits​_strip" ]
 }
